@@ -3,8 +3,8 @@ from google.appengine.api.users import User
 
 class Image(db.Model):
     "Represents an image stored in the datastore"
-    # blog properties storing up to 1MB of binary data
     image = db.BlobProperty()
+    # These fields are used when storing images in the Google DataStore
     thumb = db.BlobProperty()
     original = db.BlobProperty()
     # store the date just in case

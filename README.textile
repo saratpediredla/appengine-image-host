@@ -1,10 +1,13 @@
-h1. Google AppEngine Image Hosting
+h1. Google AppEngine Image Hosting 
 
-Purposely simple image management application for use on Google AppEngine.
+Simple image management application for use on Google AppEngine with the option to use Amazon S3 as a storage back-end.
 
 h2. Background
 
-I like to add the odd image to a blog post now and then, but hate having to upload and resize images so they fit nicely. This simple application scratches that itch. Simply upload and resize images and then host them from AppEngine. It was also the perfect opportunity to play with the Image API.
+In Gareth's words 
+"I like to add the odd image to a blog post now and then, but hate having to upload and resize images so they fit nicely. This simple application scratches that itch. Simply upload and resize images and then host them from AppEngine. It was also the perfect opportunity to play with the Image API."
+
+I modified the code to make it clever (although the code itself is not clever), to be able to switch to Amazon S3 if the S3 settings are specified. It fails gracefully to store images on Google App Engine if there are no S3 settings, but needs better handling.
 
 h2. Usage
 
@@ -21,6 +24,10 @@ To this:
 pre. - url: /.*
   script: backend.py
   login: required
+
+h2. How to enable Amazon S3 storage
+
+To enable S3 storage, all you need to do is either modify the awskeys.py file or add your own awskeys_local.py file (this is there to prevent your keys getting committed to GitHub, which they will if you are using a Git copy and use awskeys.py to store your keys).
 
 h2. Limitations
 

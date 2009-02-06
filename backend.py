@@ -13,6 +13,8 @@ from google.appengine.ext.webapp import template
 from google.appengine.api import users
 
 from models import Image
+import GoogleS3 
+import awskeys
 
 class Index(webapp.RequestHandler):
     """
@@ -82,19 +84,35 @@ class Uploader(webapp.RequestHandler):
         
         # create the image object
         image = Image()
+        # Try and create an s3 connection
+        if len(awskeys.AWS_ACCESS_KEY_ID) > 0 and len(awskeys.AWS_SECRET_ACCESS_KEY) > 0:
+            s3 = GoogleS3.AWSAuthConnection(awskeys.AWS_ACCESS_KEY_ID, awskeys.AWS_SECRET_ACCESS_KEY)
+        else:
+            s3 = None
+        
         # and set the properties to the relevant values
         image.image = db.Blob(image_content)
-        # we always store the original here in case of errors
-        # although it's currently not exposed via the frontend
-        image.original = db.Blob(original_content)
-        image.thumb = db.Blob(thumb_content)
         image.user = users.get_current_user()
+        
+        if s3 is None:
+            # we always store the original here in case of errors
+            # although it's currently not exposed via the frontend
+            image.original = db.Blob(original_content)
+            image.thumb = db.Blob(thumb_content)
+            # store the image in the datasore
+            image.put()
+        else:
+            # we want to store in S3, so store the data and use the key
+            image.put()
+            # Put the 3 different images
+            s3.put(awskeys.BUCKET_NAME,str(image.key()) + "_original",original_content)
+            s3.put(awskeys.BUCKET_NAME,str(image.key()) + "_thumb",thumb_content)
+            s3.put(awskeys.BUCKET_NAME,str(image.key()) + "_image",image_content)
                 
-        # store the image in the datasore
-        image.put()
+        
         # and redirect back to the admin page
         self.redirect('/')
-                
+            
 # wire up the views
 application = webapp.WSGIApplication([
     ('/', Index),

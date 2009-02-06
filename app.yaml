@@ -1,4 +1,4 @@
-application: image-host
+application: hedgehoglab-image-host
 version: 1
 runtime: python
 api_version: 1
@@ -12,4 +12,4 @@ handlers:
 
 - url: /.*
   script: backend.py
-  login: admin
+  login: required
