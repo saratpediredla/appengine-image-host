@@ -53,18 +53,18 @@ class Deleter(webapp.RequestHandler):
         # we get the user as you can only delete your own images
         user = users.get_current_user()
         image = db.get(self.request.get("key"))
-		# Try and create an s3 connection
+        # Try and create an s3 connection
         if len(awskeys.AWS_ACCESS_KEY_ID) > 0 and len(awskeys.AWS_SECRET_ACCESS_KEY) > 0:
             s3 = GoogleS3.AWSAuthConnection(awskeys.AWS_ACCESS_KEY_ID, awskeys.AWS_SECRET_ACCESS_KEY)
         else:
             s3 = None
         # check that we own this image
         if image.user == user:
+            if s3 is not None:
+                s3.delete(awskeys.BUCKET_NAME,str(image.key()) + "_original")
+                s3.delete(awskeys.BUCKET_NAME,str(image.key()) + "_thumb")
+                s3.delete(awskeys.BUCKET_NAME,str(image.key()) + "_image")
             image.delete()
-			if s3 is not None:
-				s3.delete(awskeys.BUCKET_NAME,str(image.key()) + "_original",original_content)
-	            s3.delete(awskeys.BUCKET_NAME,str(image.key()) + "_thumb",thumb_content)
-	            s3.delete(awskeys.BUCKET_NAME,str(image.key()) + "_image",image_content)
         # whatever happens rediect back to the main admin view
         self.redirect('/')
        
